@@ -1,15 +1,3 @@
-
-## Listar ubicaciones de los servicios ejecutados 
-
-Get-WmiObject -class win32_service |Format-List *
-
-Get-WmiObject -class win32_service |Sort-Object -Unique PathName | fl Pathname
-
-## Listar procesos sin que se repitan 
-
-Get-Process | Sort-Object -Unique
-
-
 # 🛠️ PowerShell for Pentesters
 
 Comandos útiles en PowerShell para tareas de reconocimiento, post-explotación, evasión y búsqueda de información sensible en sistemas Windows comprometidos.
@@ -35,7 +23,7 @@ Get-WmiObject -Class win32_service | Sort-Object -Property PathName -Unique | Fo
 
 ```powershell
 Get-Process | Sort-Object -Property ProcessName -Unique
-
+```
 
 👤 Enumeración de usuarios
 
